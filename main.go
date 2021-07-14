@@ -101,6 +101,7 @@ func getPages() int {
 }
 
 func writeJob(jobs []extractedJob) {
+	c := make(chan []string)
 	file, err := os.Create("jobs.csv")
 	checkErr(err)
 
@@ -112,10 +113,14 @@ func writeJob(jobs []extractedJob) {
 	checkErr(wErr)
 
 	for _, job := range jobs {
-		jobSlice := []string{"https://kr.indeed.com/" + job.id, job.title, job.location, job.salary, job.summary}
-		jwErr := w.Write(jobSlice)
+		go writeSlice(job, c)
+		jwErr := w.Write(<-c)
 		checkErr(jwErr)
 	}
+}
+
+func writeSlice(job extractedJob, c chan<- []string) {
+	c <- []string{"https://kr.indeed.com/" + job.id, job.title, job.location, job.salary, job.summary}
 }
 
 func checkErr(err error) {
