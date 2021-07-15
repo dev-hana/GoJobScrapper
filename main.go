@@ -1,8 +1,10 @@
 package main
 
 import (
-	"fmt"
+	"os"
+	"strings"
 
+	"github.com/dev-hana/GoJobScrapper/scrapper"
 	"github.com/labstack/echo"
 )
 
@@ -10,9 +12,13 @@ func handleHome(c echo.Context) error {
 	return c.File("home.html")
 }
 
+const fileName string = "jobs.csv"
+
 func handleScrape(c echo.Context) error {
-	fmt.Println(c.FormValue("term"))
-	return nil
+	defer os.Remove(fileName)
+	term := strings.ToLower(scrapper.CleanString(c.FormValue("term")))
+	scrapper.Scrape(term)
+	return c.Attachment(fileName, fileName)
 }
 
 func main() {
@@ -20,5 +26,4 @@ func main() {
 	e.GET("/", handleHome)
 	e.POST("/scrape", handleScrape)
 	e.Logger.Fatal(e.Start(":1323"))
-
 }
