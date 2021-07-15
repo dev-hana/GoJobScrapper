@@ -1,13 +1,11 @@
 package main
 
 import (
-	"net/http"
-
 	"github.com/labstack/echo"
 )
 
 func handleHome(c echo.Context) error {
-	return c.String(http.StatusOK, "Hello World!")
+	return c.File("home.html")
 }
 
 func main() {
